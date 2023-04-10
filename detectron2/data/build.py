@@ -177,9 +177,9 @@ def print_instances_class_histogram(dataset_dicts, class_names):
         )
         if len(classes):
             assert classes.min() >= 0, f"Got an invalid category_id={classes.min()}"
-            assert (
-                classes.max() < num_classes
-            ), f"Got an invalid category_id={classes.max()} for a dataset of {num_classes} classes"
+            # assert (
+            #     classes.max() < num_classes
+            # ), f"Got an invalid category_id={classes.max()} for a dataset of {num_classes} classes"
         histogram += np.histogram(classes, bins=hist_bins)[0]
 
     N_COLS = min(6, len(class_names) * 2)

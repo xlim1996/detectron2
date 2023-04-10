@@ -26,6 +26,7 @@ from .cityscapes import load_cityscapes_instances, load_cityscapes_semantic
 from .cityscapes_panoptic import register_all_cityscapes_panoptic
 from .coco import load_sem_seg, register_coco_instances
 from .coco_panoptic import register_coco_panoptic, register_coco_panoptic_separated
+from .lvis_own import get_lvis_own_instances_meta, register_lvis_own_instances
 from .lvis import get_lvis_instances_meta, register_lvis_instances
 from .pascal_voc import register_pascal_voc
 
@@ -173,6 +174,29 @@ def register_all_lvis(root):
             )
 
 
+
+# ==== Predefined datasets and splits for lvis own==========
+
+#lvis own is a dataset that is created by us,which is part of lvis v1.0
+_PREDEFINED_SPLITS_LVIS_own= {
+    "lvis_own": {
+        "lvis_v1_train_subdataset": ("lvis/", "lvis/lvis_v1_train.json"),
+        "lvis_v1_val_subdataset": ("lvis/", "lvis/lvis_v1_val.json"),
+    },
+}
+
+
+def register_all_lvis_own(root):
+    for dataset_name, splits_per_dataset in _PREDEFINED_SPLITS_LVIS_own.items():
+        for key, (image_root, json_file) in splits_per_dataset.items():
+            register_lvis_own_instances(
+                key,
+                get_lvis_own_instances_meta(dataset_name),
+                os.path.join(root, json_file) if "://" not in json_file else json_file,
+                os.path.join(root, image_root),
+            )
+
+
 # ==== Predefined splits for raw cityscapes images ===========
 _RAW_CITYSCAPES_SPLITS = {
     "cityscapes_fine_{task}_train": ("cityscapes/leftImg8bit/train/", "cityscapes/gtFine/train/"),
@@ -253,6 +277,7 @@ if __name__.endswith(".builtin"):
     _root = os.path.expanduser(os.getenv("DETECTRON2_DATASETS", "datasets"))
     register_all_coco(_root)
     register_all_lvis(_root)
+    register_all_lvis_own(_root)
     register_all_cityscapes(_root)
     register_all_cityscapes_panoptic(_root)
     register_all_pascal_voc(_root)
