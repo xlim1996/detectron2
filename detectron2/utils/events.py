@@ -6,7 +6,6 @@ import os
 import time
 from collections import defaultdict
 from contextlib import contextmanager
-from functools import cached_property
 from typing import Optional
 import torch
 from fvcore.common.history_buffer import HistoryBuffer
@@ -143,14 +142,10 @@ class TensorboardXWriter(EventWriter):
             kwargs: other arguments passed to `torch.utils.tensorboard.SummaryWriter(...)`
         """
         self._window_size = window_size
-        self._writer_args = {"log_dir": log_dir, **kwargs}
-        self._last_write = -1
-
-    @cached_property
-    def _writer(self):
         from torch.utils.tensorboard import SummaryWriter
 
-        return SummaryWriter(**self._writer_args)
+        self._writer = SummaryWriter(log_dir, **kwargs)
+        self._last_write = -1
 
     def write(self):
         storage = get_event_storage()
@@ -179,7 +174,7 @@ class TensorboardXWriter(EventWriter):
             storage.clear_histograms()
 
     def close(self):
-        if "_writer" in self.__dict__:
+        if hasattr(self, "_writer"):  # doesn't exist when the code fails at import
             self._writer.close()
 
 

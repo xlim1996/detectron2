@@ -241,9 +241,12 @@ def _create_text_labels(classes, scores, class_names, is_crowd=None):
     labels = None
     if classes is not None:
         if class_names is not None and len(class_names) > 0:
+            # print("class_names", class_names)
+            # print("classes", classes)
             labels = [class_names[i] for i in classes]
         else:
             labels = [str(i) for i in classes]
+            # print("labels_else", labels)
     if scores is not None:
         if labels is None:
             labels = ["{:.0f}%".format(s * 100) for s in scores]
@@ -366,11 +369,13 @@ class Visualizer:
             instance_mode (ColorMode): defines one of the pre-defined style for drawing
                 instances on an image.
         """
+        print("img_rgb", img_rgb.shape)
         self.img = np.asarray(img_rgb).clip(0, 255).astype(np.uint8)
         if metadata is None:
             metadata = MetadataCatalog.get("__nonexist__")
         self.metadata = metadata
         self.output = VisImage(self.img, scale=scale)
+        print("self.output", self.output.get_image().shape)
         self.cpu_device = torch.device("cpu")
 
         # too small texts are useless, therefore clamp to 9
