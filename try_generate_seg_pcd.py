@@ -55,7 +55,7 @@ zed = sl.Camera()
 # Create a InitParameters object and set configuration parameters
 init_params = sl.InitParameters()
 #TODO: change depth mode 
-init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE  # Use PERFORMANCE depth mode  
+init_params.depth_mode = sl.DEPTH_MODE.NEURAL  # Use PERFORMANCE depth mode  
 init_params.coordinate_units = sl.UNIT.METER  # Use meter units (for depth measurements)
 init_params.camera_resolution = sl.RESOLUTION.HD720  # Use HD1080 video mode
 init_params.camera_fps = 30  # Set fps at 30
@@ -86,6 +86,8 @@ if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
     # A new image is available if grab() returns SUCCESS
     zed.retrieve_image(image, sl.VIEW.LEFT)
     zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
+    image = image.get_data()
+    depth = depth.get_data()
 # Close the camera
 zed.close()
 #TODO: check the depth range
