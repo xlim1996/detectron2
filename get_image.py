@@ -57,7 +57,8 @@ while(True):
         # plt.imshow(depth_save,cmap='gray')
         # plt.show()
         cv2.imwrite(os.path.join(file_path,"image_{}.png".format(i)),image_save)
-        cv2.imwrite(os.path.join(file_path,"depth_{}.png".format(i)),depth_save)
+        # cv2.imwrite(os.path.join(file_path,"depth_{}.png".format(i)),depth_save)
+        np.save(os.path.join(file_path,"depth_{}.npy".format(i)),depth_save)
         input()
     i +=1
 
