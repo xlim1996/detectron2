@@ -2,7 +2,7 @@
 Author: Xiaolin Lin xlim1996@outlook.com
 Date: 2023-05-02 23:28:32
 LastEditors: Xiaolin Lin xlim1996@outlook.com
-LastEditTime: 2023-05-05 11:15:17
+LastEditTime: 2023-05-19 10:47:23
 FilePath: /hiwi/test_zed_1.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -59,13 +59,12 @@ save = True
 
 file_path='ZED_camera_data'
 file_name = 'DepthViewer_Left_29934236_1242_02-05-2023-12-44-38.png'
-pcd_name = 'point_cloud_PCD_29934236_1242_02-05-2023-12-44-42.pcd'
+depth_name = 'depth_PNG_29934236_1242_02-05-2023-12-44-41.png'
 with torch.inference_mode():
     
-    pcd = o3d.io.read_point_cloud(os.path.join(file_path, pcd_name))
-    o3d.visualization.draw_geometries([pcd])
     image = cv2.imread(os.path.join(file_path, file_name))
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    depth = cv2.imread(os.path.join(file_path, depth_name),-1)
     H_o, W_o = image.shape[:2]
     image = cv2.resize(image,(int(W_o / 2), int(H_o / 2)))
     image = np.array(image, dtype=np.uint8)
@@ -94,5 +93,11 @@ with torch.inference_mode():
     cv2_imshow(output)
     #resize image back to original size
     image_result = cv2.resize(output, (W_o, H_o))
+    # #instance segmentation result to point cloud
+    # intrinsic_matrix = o3d.camera.PinholeCameraIntrinsic(width=W_o, height=H_o, fx=fx, fy=fy, cx=cx, cy=cy)
+
+    # rgbd_image=o3d.geometry.create_rgbd_image_from_color_and_depth(image_result,depth,depth_scale=1.0,depth_trunc=3.0,convert_rgb_to_intensity=False)
+    # pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
+    #         rgbd_image, intrinsic_matrix)
 
         

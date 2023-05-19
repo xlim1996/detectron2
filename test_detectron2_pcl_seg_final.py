@@ -2,7 +2,7 @@
 Author: Xiaolin Lin xlim1996@outlook.com
 Date: 2023-05-01 23:31:22
 LastEditors: Xiaolin Lin xlim1996@outlook.com
-LastEditTime: 2023-05-05 10:51:36
+LastEditTime: 2023-05-18 17:05:12
 FilePath: /hiwi/test_detectron2_pcl_seg_final.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -114,6 +114,7 @@ with torch.inference_mode():
         # create point cloud from depth rgbd image
         pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
             rgbd_image, intrinsic)
+
 
         # visualize point cloud
         o3d.visualization.draw_geometries([pcd]) 
