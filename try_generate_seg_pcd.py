@@ -58,7 +58,8 @@ init_params = sl.InitParameters()
 init_params.depth_mode = sl.DEPTH_MODE.NEURAL  # Use PERFORMANCE depth mode  
 init_params.coordinate_units = sl.UNIT.METER  # Use meter units (for depth measurements)
 init_params.camera_resolution = sl.RESOLUTION.HD720  # Use HD1080 video mode
-init_params.camera_fps = 15  # Set fps at 30
+init_params.depth_minimum_distance = 0.2
+init_params.camera_fps = 30  # Set fps at 30
 
 #TODO: check extrinsic matrix
 # rotation = calibration_params.get_rotation_matrix()
