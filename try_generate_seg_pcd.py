@@ -58,25 +58,25 @@ init_params = sl.InitParameters()
 init_params.depth_mode = sl.DEPTH_MODE.NEURAL  # Use PERFORMANCE depth mode  
 init_params.coordinate_units = sl.UNIT.METER  # Use meter units (for depth measurements)
 init_params.camera_resolution = sl.RESOLUTION.HD720  # Use HD1080 video mode
-init_params.camera_fps = 30  # Set fps at 30
-calibration_params=zed.get_camera_information().camera_configuration.calibration_parameters
-fx=calibration_params.left_cam.fx
-fy=calibration_params.left_cam.fy
-cx=calibration_params.left_cam.cx
-cy=calibration_params.left_cam.cy
+init_params.camera_fps = 15  # Set fps at 30
 
 #TODO: check extrinsic matrix
-rotation = calibration_params.get_rotation_matrix()
-translation = calibration_params.get_translation_vector()
-extrinsic_matrix = np.array([[rotation[0], rotation[1], rotation[2], translation[0]],
-                             [rotation[3], rotation[4], rotation[5], translation[1]],
-                             [rotation[6], rotation[7], rotation[8], translation[2]],
-                             [0, 0, 0, 1]])
+# rotation = calibration_params.get_rotation_matrix()
+# translation = calibration_params.get_translation_vector()
+# extrinsic_matrix = np.array([[rotation[0], rotation[1], rotation[2], translation[0]],
+#                              [rotation[3], rotation[4], rotation[5], translation[1]],
+#                              [rotation[6], rotation[7], rotation[8], translation[2]],
+#                              [0, 0, 0, 1]])
 
 # Open the camera
 err = zed.open(init_params)
 if err != sl.ERROR_CODE.SUCCESS:
     exit(1)
+calibration_params=zed.get_camera_information().camera_configuration.calibration_parameters
+fx=calibration_params.left_cam.fx
+fy=calibration_params.left_cam.fy
+cx=calibration_params.left_cam.cx
+cy=calibration_params.left_cam.cy
 #capture image and depth from zed camera
 image = sl.Mat()
 depth = sl.Mat()
@@ -90,6 +90,7 @@ if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
     depth = depth.get_data()
 # Close the camera
 zed.close()
+cv2.imwrite("image.png",image)
 #TODO: check the depth range
 
 with torch.inference_mode():
@@ -97,7 +98,6 @@ with torch.inference_mode():
     # pcd = o3d.io.read_point_cloud(os.path.join(file_path, pcd_name))
     # o3d.visualization.draw_geometries([pcd])
     
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     H_o, W_o = image.shape[:2]
     #TODO: need to change the image shape to decide whether to resize or not
     #resize image to half size(solve the problem of detectron2 input size)
@@ -138,7 +138,8 @@ with torch.inference_mode():
 
     rgbd_image=o3d.geometry.create_rgbd_image_from_color_and_depth(image_result,depth,depth_scale=1.0,depth_trunc=3.0,convert_rgb_to_intensity=False)
     pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
-            rgbd_image, intrinsic_matrix, extrinsic_matrix)
+            rgbd_image, intrinsic_matrix)
+    o3d.visualization.draw_geometries([pcd]) 
 
         
 
