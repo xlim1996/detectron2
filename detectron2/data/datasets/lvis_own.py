@@ -173,7 +173,6 @@ def get_lvis_own_instances_meta(dataset_name):
     Returns:
         dict: LVIS metadata with keys: thing_classes
     """
-    print("dataset",dataset_name)
     if "cocofied" in dataset_name:
         return _get_coco_instances_meta()
     elif "lvis_own" in dataset_name:

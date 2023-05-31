@@ -1,3 +1,11 @@
+'''
+Author: Xiaolin Lin xlim1996@outlook.com
+Date: 2023-05-19 19:21:26
+LastEditors: Xiaolin Lin xlim1996@outlook.com
+LastEditTime: 2023-05-31 17:37:21
+FilePath: /detectron2/get_image.py
+Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+'''
 
 import time
 import torch
@@ -22,13 +30,7 @@ init_params.camera_resolution = sl.RESOLUTION.HD720  # Use HD1080 video mode
 init_params.depth_minimum_distance = 0.2
 init_params.camera_fps = 30  # Set fps at 30
 
-#TODO: check extrinsic matrix
-# rotation = calibration_params.get_rotation_matrix()
-# translation = calibration_params.get_translation_vector()
-# extrinsic_matrix = np.array([[rotation[0], rotation[1], rotation[2], translation[0]],
-#                              [rotation[3], rotation[4], rotation[5], translation[1]],
-#                              [rotation[6], rotation[7], rotation[8], translation[2]],
-#                              [0, 0, 0, 1]])
+
 
 # Open the camera
 err = zed.open(init_params)
@@ -44,7 +46,8 @@ image = sl.Mat()
 depth = sl.Mat()
 runtime_parameters = sl.RuntimeParameters()
 i = 0
-file_path="zed_data"
+image_file_path="zed_image"
+depth_file_path="zed_depth"
 while(True):
         # Grab an image, a RuntimeParameters object must be given to grab()
     if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -56,13 +59,12 @@ while(True):
 
         # plt.imshow(depth_save,cmap='gray')
         # plt.show()
-        cv2.imwrite(os.path.join(file_path,"image_{}.png".format(i)),image_save)
+        cv2.imwrite(os.path.join(image_file_path,"image_{}.png".format(i)),image_save)
         # cv2.imwrite(os.path.join(file_path,"depth_{}.png".format(i)),depth_save)
-        np.save(os.path.join(file_path,"depth_{}.npy".format(i)),depth_save)
+        np.save(os.path.join(depth_file_path,"depth_{}.npy".format(i)),depth_save)
         input()
     i +=1
 
-#TODO: check the depth range
 # Close the camera
         
 
