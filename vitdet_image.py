@@ -2,7 +2,7 @@
 Author: Xiaolin Lin xlim1996@outlook.com
 Date: 2023-05-31 15:38:02
 LastEditors: Xiaolin Lin xlim1996@outlook.com
-LastEditTime: 2023-05-31 18:47:54
+LastEditTime: 2023-05-31 18:46:56
 FilePath: /detectron2/vitdet_pcl.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -31,17 +31,9 @@ def parse_args():
     parser.add_argument('--image_path',default='zed_image/image_0.png', help='image file path')
     parser.add_argument('--depth_path',default='zed_depth/depth_0.npy', help='depth file path')
     parser.add_argument('--visualize_image',default=True, help='view the result or not')
-    parser.add_argument('--visualize_pcl',default=True, help='view the result or not')
     parser.add_argument('--image_dir', help='save the result or not')
-    parser.add_argument('--depth_dir', help='save the result or not')
     parser.add_argument('--save_image',default=False, help='save the result or not')
     parser.add_argument('--save_image_path',default='result_image', help='save the result or not')
-    parser.add_argument('--save_pcl',default=False, help='save the result or not')
-    parser.add_argument('--save_pcl_path',default='result_pcl', help='save the result or not')
-    parser.add_argument('--fx',default=5.242780151367187500e+02, help='save the result or not')
-    parser.add_argument('--fy',default=5.242780151367187500e+02, help='save the result or not')
-    parser.add_argument('--cx',default=6.233546142578125000e+02, help='save the result or not')
-    parser.add_argument('--cy',default=3.711284484863281250e+02, help='save the result or not')
     args = parser.parse_args()
     return args
 
@@ -72,7 +64,7 @@ def load_model(config,checkpoints):
 
     model.eval()
     return model,id,cfg
-def detect(model,id,cfg,image,depth,fx,fy,cx,cy,visualize_image=True,visualize_pcl=True):
+def detect(model,id,cfg,image,visualize_image=True):
     H_o, W_o = image.shape[:2]
     image = cv2.resize(image,(int(W_o / 2), int(H_o / 2)))
     #convert data type of image
@@ -102,72 +94,37 @@ def detect(model,id,cfg,image,depth,fx,fy,cx,cy,visualize_image=True,visualize_p
         cv2_imshow(output)
     #resize image back to original size
     image_result = cv2.resize(output, (W_o, H_o))
-    image_pcd = o3d.geometry.Image(image_result)
-    depth_pcd = o3d.geometry.Image(depth)
-    #instance segmentation result to point cloud
-    intrinsic_matrix = o3d.camera.PinholeCameraIntrinsic(width=W_o, height=H_o, fx=fx, fy=fy, cx=cx, cy=cy)
-
-    rgbd_image=o3d.geometry.RGBDImage.create_from_color_and_depth(image_pcd,depth_pcd,depth_scale=1.0,depth_trunc=3.0,convert_rgb_to_intensity=False)
-    pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
-            rgbd_image, intrinsic_matrix)
-    if visualize_pcl:
-        o3d.visualization.draw_geometries([pcd])
-    return image_result,pcd
+    return image_result
 def main():
     args = parse_args()
     config=args.config
     checkpoints=args.checkpoints
     image_path = args.image_path
-    depth_path = args.depth_path
     image_dir = args.image_dir
-    depth_dir = args.depth_dir
 
     #load the model
     model,id,cfg = load_model(config,checkpoints)
-    #camera intrinsic parameters
-    fx=args.fx
-    fy=args.fy
-    cx=args.cx
-    cy=args.cy
-    
+
     with torch.inference_mode():
         if image_dir is None:
-            file_index = os.path.basename(image_path).split('.')[0].split('_')[1]
-            print(image_path)
-            print(file_index)
             image = cv2.imread(image_path)
-            depth = np.load(depth_path)
-            image_result,pcd=detect(model,id,cfg,image,depth,fx,fy,cx,cy,args.visualize_image,args.visualize_pcl)
+            image_result=detect(model,id,cfg,image,args.visualize_image)
             if args.save_image:
                 save_image_path = os.path.join(args.save_image_path)
                 if not os.path.exists(args.save_image_path):
                     os.makedirs(args.save_image_path)
                 cv2.imwrite(os.path.join(save_image_path,os.path.basename(image_path)),image_result)
-            if args.save_pcl:
-                save_pcl_path = os.path.join(args.save_pcl_path)
-                if not os.path.exists(save_pcl_path):
-                    os.makedirs(save_pcl_path)
-                o3d.io.write_point_cloud(os.path.join(save_pcl_path,"pcd_{}.ply".format(file_index)),pcd)
+  
         else:
             image_list = os.listdir(image_dir)
-            depth_list = os.listdir(depth_dir)
-            assert len(image_list)==len(depth_list)
             for file_name in image_list:
-                file_index = os.path.basename(file_name).split('.')[0].split('_')[1]
-                image = cv2.imread(os.path.join(image_dir,file_name))
-                depth = np.load(os.path.join(depth_dir,"depth_{}.npy".format(file_index)))   
-                #if save the result,it won't visualize the result(avoid bugs)             
-                image_result,pcd=detect(model,id,cfg,image,depth,fx,fy,cx,cy,False,False)
+                image = cv2.imread(os.path.join(image_dir,file_name))          
+                image_result=detect(model,id,cfg,image,args.visualize_image)
                 if args.save_image:
                     save_image_path = os.path.join(args.save_image_path)
                     if not os.path.exists(args.save_image_path):
                         os.makedirs(args.save_image_path)
                     cv2.imwrite(os.path.join(save_image_path,file_name),image_result)
-                if args.save_pcl:
-                    save_pcl_path = os.path.join(args.save_pcl_path)
-                    if not os.path.exists(save_pcl_path):
-                        os.makedirs(save_pcl_path)
-                    o3d.io.write_point_cloud(os.path.join(save_pcl_path,"pcd_{}.ply".format(file_index)),pcd)
 if __name__ == '__main__':
     main()
 
