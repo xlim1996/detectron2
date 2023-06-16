@@ -2,7 +2,7 @@
 Author: Xiaolin Lin xlim1996@outlook.com
 Date: 2023-05-19 18:36:06
 LastEditors: Xiaolin Lin xlim1996@outlook.com
-LastEditTime: 2023-05-31 15:36:07
+LastEditTime: 2023-06-16 11:49:27
 FilePath: /detectron2/try_zed_camera.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -57,13 +57,14 @@ fx=5.242780151367187500e+02
 fy=5.242780151367187500e+02
 cx=6.233546142578125000e+02
 cy=3.711284484863281250e+02
-image_path = "zed_data/image_0.png"
+image_path = "zed_image/image_0.png"
 image = cv2.imread(image_path)
-depth_path = "zed_data/depth_0.npy"
+depth_path = "zed_depth/depth_0.npy"
 depth = np.load(depth_path)
 
 with torch.inference_mode():
-
+    print('image shape', image.shape)
+    # input()
     H_o, W_o = image.shape[:2]
     image = cv2.resize(image,(int(W_o / 2), int(H_o / 2)))
     #convert data type of image

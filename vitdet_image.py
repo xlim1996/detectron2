@@ -2,7 +2,7 @@
 Author: Xiaolin Lin xlim1996@outlook.com
 Date: 2023-05-31 15:38:02
 LastEditors: Xiaolin Lin xlim1996@outlook.com
-LastEditTime: 2023-05-31 18:46:56
+LastEditTime: 2023-06-16 11:57:11
 FilePath: /detectron2/vitdet_pcl.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -66,7 +66,9 @@ def load_model(config,checkpoints):
     return model,id,cfg
 def detect(model,id,cfg,image,visualize_image=True):
     H_o, W_o = image.shape[:2]
-    image = cv2.resize(image,(int(W_o / 2), int(H_o / 2)))
+    #resize the image if it is too large
+    if H_o >=1500 or W_o >=1500:
+        image = cv2.resize(image,(int(W_o / 2), int(H_o / 2)))
     #convert data type of image
     image = np.array(image, dtype=np.uint8)
     image_model = np.moveaxis(image, -1, 0)        
